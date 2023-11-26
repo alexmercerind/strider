@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Strider</string>
+    <string name="permissions">Permissions</string>
+    <string name="permissions_grant">Grant</string>
+    <string name="permissions_granted">Granted</string>
+    <string name="permissions_done">Done</string>
+    <string name="permissions_physical_activity_headline">Physical activity</string>
+    <string name="permissions_physical_activity_supporting">Recording your step count &amp; movement state</string>
+    <string name="permissions_notifications_headline">Notifications</string>
+    <string name="permissions_notifications_supporting">Displaying notification in foreground service</string>
 </resources>
