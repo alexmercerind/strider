@@ -132,7 +132,7 @@ fun PermissionsScreen() {
                             .padding(end = 8.dp)
                             .size(20.dp)
                     )
-                    Text(text = stringResource(id = R.string.permissions_grant))
+                    Text(text = stringResource(id = if (physicalActivityPermission) R.string.permissions_granted else R.string.permissions_grant))
                 }
             }
             item {
@@ -166,7 +166,7 @@ fun PermissionsScreen() {
                             .padding(end = 8.dp)
                             .size(20.dp)
                     )
-                    Text(text = stringResource(id = R.string.permissions_grant))
+                    Text(text = stringResource(id = if (physicalActivityPermission) R.string.permissions_granted else R.string.permissions_grant))
                 }
             }
         }
