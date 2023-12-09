@@ -14,6 +14,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
@@ -67,63 +68,55 @@ fun PermissionsScreen() {
 
 
     val state = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state)
-    Scaffold(
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Spacer(modifier = Modifier.weight(1.0F))
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-
-                        onClick = { /*TODO*/ }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = stringResource(id = R.string.permissions_physical_activity_headline),
-                        )
-                    }
-                }
-            )
-        },
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.permissions))
-                },
-                scrollBehavior = scrollBehavior
-            )
-        }
-    ) { padding ->
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
+    Scaffold(bottomBar = {
+        BottomAppBar(actions = {
+            Spacer(modifier = Modifier.weight(1.0F))
+        }, floatingActionButton = {
+            FloatingActionButton(elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp,
+                focusedElevation = 0.dp,
+                hoveredElevation = 0.dp
+            ), onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = stringResource(id = R.string.permissions_physical_activity_headline),
+                )
+            }
+        })
+    }, topBar = {
+        LargeTopAppBar(
+            title = {
+                Text(text = stringResource(id = R.string.permissions))
+            }, scrollBehavior = scrollBehavior
+        )
+    }) { padding ->
         LazyColumn(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .padding(padding)
         ) {
             item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_directions_walk_24),
-                            contentDescription = stringResource(id = R.string.permissions_physical_activity_headline),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(32.dp)
-                        )
-                    },
+                ListItem(leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_directions_walk_24),
+                        contentDescription = stringResource(id = R.string.permissions_physical_activity_headline),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(32.dp)
+                    )
+                },
                     headlineText = { Text(text = stringResource(id = R.string.permissions_physical_activity_headline)) },
-                    supportingText = { Text(text = stringResource(id = R.string.permissions_physical_activity_supporting)) }
-                )
+                    supportingText = { Text(text = stringResource(id = R.string.permissions_physical_activity_supporting)) })
             }
             item {
                 Button(
-                    enabled = !physicalActivityPermission,
-                    onClick = {
+                    enabled = !physicalActivityPermission, onClick = {
                         physicalActivityPermissionState?.launchPermissionRequest()
-                    },
-                    modifier = Modifier.padding(start = 72.dp)
+                    }, modifier = Modifier.padding(start = 72.dp)
                 ) {
                     Icon(
                         imageVector = if (physicalActivityPermission) Icons.Default.Check else Icons.Default.Add,
@@ -136,28 +129,24 @@ fun PermissionsScreen() {
                 }
             }
             item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_message_24),
-                            contentDescription = stringResource(id = R.string.permissions_notifications_headline),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(32.dp)
-                        )
-                    },
+                ListItem(leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_message_24),
+                        contentDescription = stringResource(id = R.string.permissions_notifications_headline),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .size(32.dp)
+                    )
+                },
                     headlineText = { Text(text = stringResource(id = R.string.permissions_notifications_headline)) },
-                    supportingText = { Text(text = stringResource(id = R.string.permissions_notifications_supporting)) }
-                )
+                    supportingText = { Text(text = stringResource(id = R.string.permissions_notifications_supporting)) })
             }
             item {
                 Button(
-                    enabled = !notificationsPermission,
-                    onClick = {
+                    enabled = !notificationsPermission, onClick = {
                         notificationsPermissionState?.launchPermissionRequest()
-                    },
-                    modifier = Modifier.padding(start = 72.dp)
+                    }, modifier = Modifier.padding(start = 72.dp)
                 ) {
                     Icon(
                         imageVector = if (notificationsPermission) Icons.Default.Check else Icons.Default.Add,
@@ -166,7 +155,7 @@ fun PermissionsScreen() {
                             .padding(end = 8.dp)
                             .size(20.dp)
                     )
-                    Text(text = stringResource(id = if (physicalActivityPermission) R.string.permissions_granted else R.string.permissions_grant))
+                    Text(text = stringResource(id = if (notificationsPermission) R.string.permissions_granted else R.string.permissions_grant))
                 }
             }
         }

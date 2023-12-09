@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Surface
+import androidx.activity.enableEdgeToEdge
 import com.alexmercerind.strider.ui.theme.StriderTheme
 import com.alexmercerind.strider.utils.Constants
 
@@ -41,12 +41,10 @@ class MainActivity : ComponentActivity() {
             }
         }, stepDetectorSensor, SensorManager.SENSOR_DELAY_FASTEST)
 
-        setContent {
-            StriderTheme {
-                Surface {
+        enableEdgeToEdge()
 
-                }
-            }
+        setContent {
+            StriderTheme {}
         }
     }
 }

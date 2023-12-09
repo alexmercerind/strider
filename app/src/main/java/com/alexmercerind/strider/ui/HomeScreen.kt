@@ -29,7 +29,8 @@ import com.alexmercerind.strider.R
 @Composable
 fun HomeScreen() {
     val state = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state)
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -73,7 +74,6 @@ fun HomeScreen() {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
             }
-
         }
     }
 }
