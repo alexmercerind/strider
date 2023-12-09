@@ -60,6 +60,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
     implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
