@@ -34,7 +34,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.ui.navigation.Destinations
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -42,7 +45,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionsScreen() {
+fun PermissionsScreen(navController: NavController) {
     var physicalActivityPermissionState: PermissionState? = null
     var notificationsPermissionState: PermissionState? = null
 
@@ -57,15 +60,14 @@ fun PermissionsScreen() {
 
     val physicalActivityPermission by remember {
         derivedStateOf {
-            physicalActivityPermissionState?.status?.isGranted ?: true
+            physicalActivityPermissionState?.status?.isGranted ?: false
         }
     }
     val notificationsPermission by remember {
         derivedStateOf {
-            notificationsPermissionState?.status?.isGranted ?: true
+            notificationsPermissionState?.status?.isGranted ?: false
         }
     }
-
 
     val state = rememberTopAppBarState()
     val scrollBehavior =
@@ -74,12 +76,17 @@ fun PermissionsScreen() {
         BottomAppBar(actions = {
             Spacer(modifier = Modifier.weight(1.0F))
         }, floatingActionButton = {
-            FloatingActionButton(elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 0.dp,
-                pressedElevation = 0.dp,
-                focusedElevation = 0.dp,
-                hoveredElevation = 0.dp
-            ), onClick = { /*TODO*/ }) {
+            FloatingActionButton(
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 0.dp,
+                    pressedElevation = 0.dp,
+                    focusedElevation = 0.dp,
+                    hoveredElevation = 0.dp
+                ), onClick = {
+                    if (physicalActivityPermission && notificationsPermission) {
+                        navController.navigate(Destinations.Companion.UserDetailsScreen.route)
+                    }
+                }) {
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
                     contentDescription = stringResource(id = R.string.permissions_physical_activity_headline),
@@ -165,5 +172,7 @@ fun PermissionsScreen() {
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun PermissionsScreenPreview() {
-    PermissionsScreen()
+    PermissionsScreen(
+        navController = rememberNavController()
+    )
 }

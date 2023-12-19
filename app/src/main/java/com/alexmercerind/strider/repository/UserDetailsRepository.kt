@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -28,21 +29,28 @@ class UserDetailsRepository(application: Application) {
         get() = _weight
     private val _weight = MutableStateFlow(0.0F)
 
+    val hasUserDetails: Boolean
+        get() = validate(name.value, gender.value, height.value, weight.value)
+
     private val sharedPreferences = application.getSharedPreferences(
-        application.getString(R.string.app_name), Context.MODE_PRIVATE
+        application.getString(R.string.app_name),
+        Context.MODE_PRIVATE
     )
 
-    suspend fun save(name: String, gender: String, height: Float, weight: Float): Boolean {
+    fun save(name: String, gender: String, height: Float, weight: Float): Boolean {
         if (validate(name, gender, height, weight)) {
-            _name.emit(name)
-            _gender.emit(gender)
-            _height.emit(height)
-            _weight.emit(weight)
-            with(sharedPreferences.edit()) {
-                putString(SHARED_PREFERENCES_KEY_GENDER, gender)
-                putFloat(SHARED_PREFERENCES_KEY_HEIGHT, height)
-                putFloat(SHARED_PREFERENCES_KEY_WEIGHT, weight)
-                apply()
+            GlobalScope.launch(Dispatchers.IO) {
+                _name.emit(name)
+                _gender.emit(gender)
+                _height.emit(height)
+                _weight.emit(weight)
+                with(sharedPreferences.edit()) {
+                    putString(SHARED_PREFERENCES_KEY_NAME, name)
+                    putString(SHARED_PREFERENCES_KEY_GENDER, gender)
+                    putFloat(SHARED_PREFERENCES_KEY_HEIGHT, height)
+                    putFloat(SHARED_PREFERENCES_KEY_WEIGHT, weight)
+                    apply()
+                }
             }
             return true
         }
@@ -50,19 +58,17 @@ class UserDetailsRepository(application: Application) {
     }
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
-            _name.emit(sharedPreferences.getString(SHARED_PREFERENCES_KEY_NAME, "") ?: "")
-            _gender.emit(sharedPreferences.getString(SHARED_PREFERENCES_KEY_GENDER, "") ?: "")
-            _height.emit(sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_HEIGHT, 0.0F))
-            _weight.emit(sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_WEIGHT, 0.0F))
-        }
+        _name.update { sharedPreferences.getString(SHARED_PREFERENCES_KEY_NAME, "") ?: "" }
+        _gender.update { sharedPreferences.getString(SHARED_PREFERENCES_KEY_GENDER, "") ?: "" }
+        _height.update { sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_HEIGHT, 0.0F) }
+        _weight.update { sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_WEIGHT, 0.0F) }
     }
 
     companion object {
-        const val SHARED_PREFERENCES_KEY_NAME = "NAME"
-        const val SHARED_PREFERENCES_KEY_GENDER = "GENDER"
-        const val SHARED_PREFERENCES_KEY_HEIGHT = "HEIGHT"
-        const val SHARED_PREFERENCES_KEY_WEIGHT = "WEIGHT"
+        const val SHARED_PREFERENCES_KEY_NAME = "UserDetailsRepository/NAME"
+        const val SHARED_PREFERENCES_KEY_GENDER = "UserDetailsRepository/GENDER"
+        const val SHARED_PREFERENCES_KEY_HEIGHT = "UserDetailsRepository/HEIGHT"
+        const val SHARED_PREFERENCES_KEY_WEIGHT = "UserDetailsRepository/WEIGHT"
 
         fun validate(name: String, gender: String, height: Float, weight: Float) =
             name.isNotBlank() && gender.isNotBlank() && height > 0.0F && weight > 0.0F

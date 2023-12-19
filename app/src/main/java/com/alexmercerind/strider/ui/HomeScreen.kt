@@ -23,47 +23,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.ui.navigation.Destinations
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val state = rememberTopAppBarState()
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
-    Scaffold(
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.details_today))
-                },
-                scrollBehavior = scrollBehavior, actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = stringResource(id = R.string.settings)
-                        )
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = stringResource(id = R.string.settings)
-                        )
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
-
+    Scaffold(topBar = {
+        LargeTopAppBar(title = {
+            Text(text = stringResource(id = R.string.details_today))
+        }, scrollBehavior = scrollBehavior, actions = {
+            IconButton(onClick = {
+                navController.navigate(Destinations.Companion.UserDetailsScreen.route)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = stringResource(id = R.string.settings)
+                )
             }
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(id = R.string.settings)
+                )
+            }
+        })
+    }, floatingActionButton = {
+        FloatingActionButton(onClick = { /*TODO*/ }) {
+
         }
-    ) { padding ->
+    }) { padding ->
         LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
         ) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -82,5 +81,7 @@ fun HomeScreen() {
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(
+        navController = rememberNavController()
+    )
 }

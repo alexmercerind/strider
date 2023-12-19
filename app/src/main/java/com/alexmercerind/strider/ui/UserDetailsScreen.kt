@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -22,15 +23,12 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,39 +43,26 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
-import kotlinx.coroutines.async
+import com.alexmercerind.strider.ui.navigation.Destinations
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserDetailsScreen() {
-    val userDetailsViewModel: UserDetailsViewModel = viewModel()
-
-    var name by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var height by remember { mutableStateOf("") }
-    var weight by remember { mutableStateOf("") }
-
-    LaunchedEffect("UserDetailsScreen") {
-        try {
-            if (userDetailsViewModel.name.value.isNotEmpty()) {
-                name = userDetailsViewModel.name.value
-            }
-            if (userDetailsViewModel.gender.value.isNotEmpty()) {
-                gender = userDetailsViewModel.gender.value
-            }
-            if (userDetailsViewModel.height.value > 0.0) {
-                height = userDetailsViewModel.height.value.toString()
-            }
-            if (userDetailsViewModel.weight.value > 0.0) {
-                weight = userDetailsViewModel.weight.value.toString()
-            }
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
-    }
+fun UserDetailsScreen(
+    navController: NavController,
+    nameValue: String = "",
+    genderValue: String = "",
+    heightValue: Float = 0.0F,
+    weightValue: Float = 0.0F,
+    onSave: (String, String, Float, Float) -> Boolean
+) {
+    var name by remember { mutableStateOf(nameValue.ifBlank { "" }) }
+    var gender by remember { mutableStateOf(genderValue.ifBlank { "" }) }
+    var height by remember { mutableStateOf(if (heightValue > 0.0F) heightValue.toString() else "") }
+    var weight by remember { mutableStateOf(if (weightValue > 0.0F) weightValue.toString() else "") }
 
     var errored by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
@@ -86,12 +71,11 @@ fun UserDetailsScreen() {
 
     val scrollState = rememberScrollState()
     val topAppBarState = rememberTopAppBarState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = topAppBarState, snapAnimationSpec = null
     )
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, topBar = {
+    Scaffold(topBar = {
         LargeTopAppBar(
             title = {
                 Text(text = stringResource(id = R.string.user_details))
@@ -133,7 +117,7 @@ fun UserDetailsScreen() {
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     modifier = Modifier.exposedDropdownSize(matchTextFieldWidth = true),
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -193,24 +177,16 @@ fun UserDetailsScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             val keyboard = LocalSoftwareKeyboardController.current
-            val snackbarMessage = stringResource(id = R.string.save_success)
-            val snackbarActionLabel = stringResource(id = R.string.ok)
 
             Button(modifier = Modifier.fillMaxWidth(), onClick = {
                 coroutineScope.launch {
                     try {
-                        val success = userDetailsViewModel.save(
-                            name, gender, height.toFloat(), weight.toFloat()
-                        )
+                        val success = onSave(name, gender, height.toFloat(), weight.toFloat())
                         if (success) {
-                            async {
-                                keyboard?.hide()
-                                snackbarHostState.showSnackbar(
-                                    message = snackbarMessage, actionLabel = snackbarActionLabel
-                                )
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                            }
-                            /*TODO*/
+                            keyboard?.hide()
+
+                            navController.navigateAndReplaceStartDestination(Destinations.Companion.HomeScreen.route)
+
                             return@launch
                         }
                     } catch (e: Throwable) {
@@ -244,8 +220,24 @@ fun UserDetailsScreen() {
     }
 }
 
+// https://stackoverflow.com/a/69456787/12825435
+
+fun NavController.navigateAndReplaceStartDestination(route: String) {
+    popBackStack(graph.startDestinationId, true)
+    graph.setStartDestination(route)
+    navigate(route)
+}
+
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun UserDetailsScreenPreview() {
-    UserDetailsScreen()
+    UserDetailsScreen(
+        navController = rememberNavController(),
+        nameValue = "Alex",
+        genderValue = "Mercer",
+        heightValue = 168.0F,
+        weightValue = 54.0F
+    ) { _, _, _, _ ->
+        false
+    }
 }

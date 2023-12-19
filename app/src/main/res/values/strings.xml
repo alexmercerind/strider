@@ -23,7 +23,7 @@
     <string name="save">Save</string>
     <string name="save_success">Your details have been saved</string>
     <string name="save_failure_title">Failure</string>
-    <string name="save_failure_content">Your details could not be saved. One or more entries are not correct, please check the entered values again.</string>
+    <string name="save_failure_content">Your details could not be saved. One or more entries are invalid, please check the entered values again.</string>
     <string name="ok">Okay</string>
     <string name="warning">Warning</string>
     <string name="settings">Settings</string>
