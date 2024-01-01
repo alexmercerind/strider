@@ -20,10 +20,14 @@
     <string name="quantity_steps">Steps</string>
     <string name="quantity_time">Time</string>
     <string name="quantity_weight">Weight</string>
+    <string name="notification_content_title">Reading your steps...</string>
     <string name="save">Save</string>
     <string name="save_success">Your details have been saved</string>
     <string name="save_failure_title">Failure</string>
     <string name="save_failure_content">Your details could not be saved. One or more entries are invalid, please check the entered values again.</string>
+    <string name="service_start">Start</string>
+    <string name="service_stop">Stop</string>
+    <string name="sensor_not_found">Sensor not available</string>
     <string name="ok">Okay</string>
     <string name="warning">Warning</string>
     <string name="settings">Settings</string>
