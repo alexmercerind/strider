@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.ui.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,9 +61,19 @@ class StepReaderService : LifecycleService() {
             getString(R.string.service_stop),
             stopPendingIntent
         )
+
+        val mainActivityIntent = Intent(this, MainActivity::class.java)
+        val mainActivityPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            mainActivityIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.baseline_directions_walk_24)
             .setContentTitle(getString(R.string.notification_content_title))
+            .setContentIntent(mainActivityPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOngoing(true)
             .setShowWhen(false)
