@@ -18,13 +18,13 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.repository.StepRepository
 import com.alexmercerind.strider.repository.UserDetailsRepository
 import com.alexmercerind.strider.ui.MainActivity
 import com.alexmercerind.strider.util.StepEventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class StepReaderService : LifecycleService() {
@@ -100,7 +100,11 @@ class StepReaderService : LifecycleService() {
     }
 
     private fun createStepEventHandler() {
-        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope).apply {
+        stepEventHandler = StepEventHandler(
+            StepRepository(application),
+            UserDetailsRepository(application),
+            lifecycleScope
+        ).apply {
             lifecycleScope.launch {
                 walkSpeed.collectLatest {
                     LocalBroadcastManager.getInstance(this@StepReaderService).sendBroadcast(

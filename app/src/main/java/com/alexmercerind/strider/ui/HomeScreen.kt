@@ -26,30 +26,55 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
-import com.alexmercerind.strider.enum.WalkSpeed
+import com.alexmercerind.strider.enums.WalkSpeed
+import com.alexmercerind.strider.extensions.calories
+import com.alexmercerind.strider.extensions.distance
+import com.alexmercerind.strider.extensions.toCaloriesString
+import com.alexmercerind.strider.extensions.toDistanceString
+import com.alexmercerind.strider.model.Step
 import com.alexmercerind.strider.service.StepReaderService
 import com.alexmercerind.strider.ui.navigation.Destinations
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.reflect.KSuspendFunction2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    getStepsInRange: KSuspendFunction2<Instant, Instant, List<Step>>,
+    watchStepsInRange: (Instant, Instant) -> LiveData<List<Step>>,
+    getStepCountInRange: KSuspendFunction2<Instant, Instant, Long>,
+    watchStepCountInRange: (Instant, Instant) -> LiveData<Long>
+) {
+
+    val from = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()
+    val to = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+
+    val steps by remember { watchStepsInRange(from, to) }.observeAsState(listOf())
 
     val context = LocalContext.current
     LaunchedEffect(rememberCoroutineScope()) {
@@ -62,9 +87,9 @@ fun HomeScreen(navController: NavController) {
     }
 
     val state = rememberTopAppBarState()
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { Text(text = stringResource(id = R.string.details_today)) },
@@ -104,7 +129,10 @@ fun HomeScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item {
-                DayStepCounter(current = 8080, target = 10000)
+                val current by remember {
+                    watchStepCountInRange(from, to)
+                }.observeAsState(0L)
+                DayStepCounter(current = current, target = 10000L)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -118,15 +146,18 @@ fun HomeScreen(navController: NavController) {
 
                 var walkSpeed by remember { mutableStateOf(STILL) }
 
-                val receiver = object: BroadcastReceiver() {
+                val receiver = object : BroadcastReceiver() {
                     override fun onReceive(context: Context?, intent: Intent?) {
                         if (intent?.action == StepReaderService.ACTION_WALK_SPEED) {
                             val value = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                intent.getSerializableExtra(StepReaderService.ACTION_WALK_SPEED_ARG, WalkSpeed::class.java)
+                                intent.getSerializableExtra(
+                                    StepReaderService.ACTION_WALK_SPEED_ARG,
+                                    WalkSpeed::class.java
+                                )
                             } else {
                                 intent.getSerializableExtra(StepReaderService.ACTION_WALK_SPEED_ARG) as WalkSpeed
                             }
-                            walkSpeed = when(value) {
+                            walkSpeed = when (value) {
                                 WalkSpeed.STILL -> STILL
                                 WalkSpeed.SLOW -> SLOW
                                 WalkSpeed.MEDIUM -> MEDIUM
@@ -145,7 +176,7 @@ fun HomeScreen(navController: NavController) {
                                 receiver,
                                 IntentFilter(StepReaderService.ACTION_WALK_SPEED)
                             )
-                        } catch(e: Throwable) {
+                        } catch (e: Throwable) {
                             e.printStackTrace()
                         }
                     }
@@ -155,7 +186,7 @@ fun HomeScreen(navController: NavController) {
                     onDispose {
                         try {
                             LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
-                        } catch(e: Throwable) {
+                        } catch (e: Throwable) {
                             e.printStackTrace()
                         }
                     }
@@ -164,7 +195,29 @@ fun HomeScreen(navController: NavController) {
                 DetailCard(
                     icon = R.drawable.baseline_shutter_speed_24,
                     headlineText = walkSpeed,
-                    supportingText = stringResource(id = R.string.quantity_speed)
+                    supportingText = stringResource(id = R.string.label_walking_speed)
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                val distance = remember(steps.size) { steps.distance().toDistanceString(context) }
+                DetailCard(
+                    icon = R.drawable.baseline_directions_walk_24,
+                    headlineText = distance,
+                    supportingText = stringResource(id = R.string.label_distance)
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                val calories = remember(steps.size) { steps.calories().toCaloriesString(context) }
+                DetailCard(
+                    icon = R.drawable.baseline_local_fire_department_24,
+                    headlineText = calories,
+                    supportingText = stringResource(id = R.string.label_calories)
                 )
             }
             item {
@@ -178,7 +231,14 @@ fun HomeScreen(navController: NavController) {
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun HomeScreenPreview() {
+    suspend fun fun1(from: Instant, to: Instant) = listOf<Step>()
+    suspend fun fun2(from: Instant, to: Instant) = 0L
+
     HomeScreen(
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        ::fun1,
+        { _, _ -> MutableLiveData() },
+        ::fun2,
+        { _, _ -> MutableLiveData() }
     )
 }

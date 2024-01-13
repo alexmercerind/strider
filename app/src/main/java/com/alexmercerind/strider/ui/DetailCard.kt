@@ -1,6 +1,10 @@
 package com.alexmercerind.strider.ui
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,12 +61,18 @@ fun DetailCard(@DrawableRes icon: Int, headlineText: String, supportingText: Str
                 )
             }
             Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = headlineText,
-                style = MaterialTheme.typography.displaySmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            AnimatedContent(
+                label = "DetailCard",
+                targetState = headlineText,
+                transitionSpec = { fadeIn() togetherWith fadeOut() }
+            ) { headlineText ->
+                Text(
+                    text = headlineText,
+                    style = MaterialTheme.typography.displaySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
-import com.alexmercerind.strider.enum.Gender
+import com.alexmercerind.strider.enums.Gender
 import com.alexmercerind.strider.ui.navigation.Destinations
 import kotlinx.coroutines.launch
 

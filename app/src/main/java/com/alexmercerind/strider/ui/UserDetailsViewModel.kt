@@ -2,7 +2,7 @@ package com.alexmercerind.strider.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.alexmercerind.strider.enum.Gender
+import com.alexmercerind.strider.enums.Gender
 import com.alexmercerind.strider.repository.UserDetailsRepository
 
 class UserDetailsViewModel(application: Application) : AndroidViewModel(application) {

@@ -4,7 +4,7 @@
     <string name="details_today">Today</string>
     <string name="label_calories">Calories burned</string>
     <string name="label_distance">Distance travelled</string>
-    <string name="label_time">Time travelled</string>
+    <string name="label_walking_speed">Walking speed</string>
     <string name="permissions">Permissions</string>
     <string name="permissions_done">Done</string>
     <string name="permissions_grant">Grant</string>
@@ -36,7 +36,7 @@
     <string name="unit_gender_female">Female</string>
     <string name="unit_gender_male">Male</string>
     <string name="unit_gender_unspecified">Prefer not to say</string>
-    <string name="unit_kilocalories_small">kcal</string>
+    <string name="unit_calories_small">kcal</string>
     <string name="unit_kilogram_small">kg</string>
     <string name="unit_kilometre_small">km</string>
     <string name="unit_metre_small">m</string>

@@ -2,8 +2,11 @@ package com.alexmercerind.strider.util
 
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
-import com.alexmercerind.strider.enum.Gender
-import com.alexmercerind.strider.enum.WalkSpeed
+import com.alexmercerind.strider.enums.Gender
+import com.alexmercerind.strider.enums.WalkSpeed
+import com.alexmercerind.strider.model.Step
+import com.alexmercerind.strider.repository.StepRepository
+import com.alexmercerind.strider.repository.UserDetailsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -13,6 +16,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * StepEventHandler handles a new step event:
@@ -22,7 +26,8 @@ import kotlin.math.pow
  * * Insertion into Room (SQLite) database.
  */
 class StepEventHandler(
-    private val gender: Gender,
+    private val stepRepository: StepRepository,
+    private val userDetailsRepository: UserDetailsRepository,
     private val lifecycleScope: LifecycleCoroutineScope
 ) {
     private val current = mutableSetOf<Instant>()
@@ -40,30 +45,49 @@ class StepEventHandler(
     // Notify about a new step event.
     fun event() {
         lifecycleScope.launch {
-            val timestamp = Instant.now()
+            val instant = Instant.now()
 
             current.removeIf {
-                it.isBefore(Instant.now().minusSeconds(5L))
+                it.isBefore(instant.minusSeconds(BUFFER_INTERVAL))
             }
-            current.add(timestamp)
+            current.add(instant)
 
-            // https://www.maine.gov/mdot/challengeme/topics/docs/2019/may/How-to-Walk-with-Proper-Form-and-Technique-for-Fitness.pdf
+            val value = current.size * 60.0F / BUFFER_INTERVAL
+
             val walkSpeedValue = when {
-                current.size.toFloat() < (WALK_SPEED_MEDIUM_THRESHOLD / 60.0F * 5.0F) -> WalkSpeed.SLOW
-                current.size.toFloat() < (WALK_SPEED_FAST_THRESHOLD / 60.0F * 5.0F) -> WalkSpeed.MEDIUM
+                value < WALK_SPEED_MEDIUM_THRESHOLD -> WalkSpeed.SLOW
+                value < WALK_SPEED_FAST_THRESHOLD -> WalkSpeed.MEDIUM
                 else -> WalkSpeed.FAST
             }
             _walkSpeed.emit(walkSpeedValue)
 
-            // https://www.researchgate.net/publication/49813492_Determination_of_step_rate_thresholds_corresponding_to_physical_activity_classifications_in_adults
-            val METValue = when(gender) {
-                Gender.MALE, Gender.UNSPECIFIED -> getMaleMETFromStepRate(current.size * 60.0F)
-                Gender.FEMALE -> getFemaleMETFromStepRate(current.size * 60.0F)
+            val METValue = when (userDetailsRepository.gender.value) {
+                Gender.MALE, Gender.UNSPECIFIED -> getMaleMETFromStepRate(value)
+                Gender.FEMALE -> getFemaleMETFromStepRate(value)
+                else -> 0.0F
             }.toFloat()
             _MET.emit(METValue)
 
-            Log.d(Constants.LOG_TAG, "walkSpeedValue=$walkSpeedValue")
-            Log.d(Constants.LOG_TAG, "METValue=$METValue")
+            val speedValue = getSpeedFromStepRate(value)
+
+            Log.d(Constants.LOG_TAG, "StepEventHandler/walkSpeedValue=$walkSpeedValue")
+            Log.d(Constants.LOG_TAG, "StepEventHandler/METValue=$METValue")
+            Log.d(Constants.LOG_TAG, "StepEventHandler/speedValue=$speedValue")
+
+            try {
+                stepRepository.insert(
+                    Step(
+                        instant,
+                        METValue,
+                        userDetailsRepository.height.value,
+                        userDetailsRepository.weight.value,
+                        speedValue,
+                        walkSpeedValue
+                    )
+                )
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
 
             refractoryPeriodJob?.cancel()
             refractoryPeriodJob = lifecycleScope.launch(Dispatchers.IO) {
@@ -75,11 +99,19 @@ class StepEventHandler(
         }
     }
 
-    private fun getMaleMETFromStepRate(value: Float) = 0.00004325 * (value / 5.0).pow(2.4528)
-    private fun getFemaleMETFromStepRate(value: Float) = 0.00004325 * (value / 5.0).pow(2.4528)
+    private fun getMaleMETFromStepRate(value: Float) = 0.00004325 * value.pow(2.4528F)
+    private fun getFemaleMETFromStepRate(value: Float) = 0.00004325 * value.pow(2.4528F)
+
+    private fun getSpeedFromStepRate(value: Float) =
+        userDetailsRepository.height.value * sqrt(2.0F) * value / (100L * 60L)
 
     companion object {
-        const val WALK_SPEED_MEDIUM_THRESHOLD = 135
-        const val WALK_SPEED_FAST_THRESHOLD = 160
+        const val BUFFER_INTERVAL = 5L
+        const val WALK_SPEED_MEDIUM_THRESHOLD = 135L
+        const val WALK_SPEED_FAST_THRESHOLD = 160L
     }
+
+
+    // https://www.maine.gov/mdot/challengeme/topics/docs/2019/may/How-to-Walk-with-Proper-Form-and-Technique-for-Fitness.pdf
+    // https://www.researchgate.net/publication/49813492_Determination_of_step_rate_thresholds_corresponding_to_physical_activity_classifications_in_adults
 }
