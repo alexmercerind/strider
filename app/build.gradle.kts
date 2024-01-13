@@ -67,6 +67,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
 
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 

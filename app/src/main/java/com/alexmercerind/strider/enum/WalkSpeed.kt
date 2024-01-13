@@ -1,7 +1,7 @@
 package com.alexmercerind.strider.enum
 
 enum class WalkSpeed {
-    STOPPED,
+    STILL,
     SLOW,
     MEDIUM,
     FAST

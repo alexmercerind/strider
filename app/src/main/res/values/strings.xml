@@ -1,4 +1,5 @@
 <resources>
+    <string name="analytics">Analytics</string>
     <string name="app_name">Strider</string>
     <string name="details_today">Today</string>
     <string name="label_calories">Calories burned</string>
@@ -42,6 +43,7 @@
     <string name="unit_speed_fast">Fast</string>
     <string name="unit_speed_medium">Medium</string>
     <string name="unit_speed_slow">Slow</string>
+    <string name="unit_speed_still">Still</string>
     <string name="user_details">User details</string>
     <string name="user_name">Name</string>
     <plurals name="unit_centimetre">

@@ -16,12 +16,15 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.alexmercerind.strider.R
 import com.alexmercerind.strider.repository.UserDetailsRepository
 import com.alexmercerind.strider.ui.MainActivity
 import com.alexmercerind.strider.util.StepEventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class StepReaderService : LifecycleService() {
@@ -31,8 +34,14 @@ class StepReaderService : LifecycleService() {
         const val NOTIFICATION_CHANNEL_ID = "STEP_READER_SERVICE"
         const val NOTIFICATION_CHANNEL_NAME = "Step Reader Service"
 
-        const val ACTION_START = "START"
-        const val ACTION_STOP = "STOP"
+        const val ACTION_START = "STEP-READER-SERVICE-START"
+        const val ACTION_STOP = "STEP-READER-SERVICE-STOP"
+
+        const val ACTION_WALK_SPEED = "STEP-READER-SERVICE-WALK-SPEED"
+        const val ACTION_WALK_SPEED_ARG = "STEP-READER-SERVICE-WALK-SPEED-ARG"
+
+        const val ACTION_MET = "STEP-READER-SERVICE-MET"
+        const val ACTION_MET_ARG = "STEP-READER-SERVICE-MET-ARG"
     }
 
     private lateinit var sensorManager: SensorManager
@@ -90,6 +99,29 @@ class StepReaderService : LifecycleService() {
         stopSelf()
     }
 
+    private fun createStepEventHandler() {
+        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope).apply {
+            lifecycleScope.launch {
+                walkSpeed.collectLatest {
+                    LocalBroadcastManager.getInstance(this@StepReaderService).sendBroadcast(
+                        Intent(ACTION_WALK_SPEED).apply {
+                            putExtra(ACTION_WALK_SPEED_ARG, it)
+                        }
+                    )
+                }
+            }
+            lifecycleScope.launch {
+                MET.collectLatest {
+                    LocalBroadcastManager.getInstance(this@StepReaderService).sendBroadcast(
+                        Intent(ACTION_MET).apply {
+                            putExtra(ACTION_MET_ARG, it)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
         return null
@@ -102,7 +134,7 @@ class StepReaderService : LifecycleService() {
         sensorManager = getSystemService(SensorManager::class.java)
         notificationManager = getSystemService(NotificationManager::class.java)
 
-        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope)
+        createStepEventHandler()
 
         // Register listeners.
         try {
@@ -143,7 +175,7 @@ class StepReaderService : LifecycleService() {
         sensorManager = getSystemService(SensorManager::class.java)
         notificationManager = getSystemService(NotificationManager::class.java)
 
-        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope)
+        createStepEventHandler()
 
         // Check for Manifest.permission.POST_NOTIFICATIONS.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
