@@ -6,7 +6,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alexmercerind.strider.enums.Theme
 import com.alexmercerind.strider.ui.navigation.Destinations
 import com.alexmercerind.strider.ui.theme.StriderTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -34,6 +37,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             val stepViewModel = viewModel<StepViewModel>()
+            val settingsViewModel = viewModel<SettingsViewModel>()
             val userDetailsViewModel = viewModel<UserDetailsViewModel>()
 
             var physicalActivityPermissionState: PermissionState? = null
@@ -45,20 +49,41 @@ class MainActivity : ComponentActivity() {
                 notificationsPermissionState = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
             }
 
+            // --------------------------------------------------
             val hasPermission by remember {
                 derivedStateOf {
                     physicalActivityPermissionState?.status?.isGranted ?: false && notificationsPermissionState?.status?.isGranted ?: false
                 }
             }
+            // --------------------------------------------------
             val hasUserDetails = userDetailsViewModel.hasUserDetails
+            // --------------------------------------------------
 
+
+            // --------------------------------------------------
             val startDestination = when {
                 !hasPermission -> Destinations.Companion.PermissionsScreen.route
                 !hasUserDetails -> Destinations.Companion.UserDetailsScreen.route
                 else -> Destinations.Companion.HomeScreen.route
             }
+            // --------------------------------------------------
 
-            StriderTheme {
+
+            val system = isSystemInDarkTheme()
+            val theme by settingsViewModel.theme.collectAsState()
+            val darkTheme by remember {
+                derivedStateOf {
+                    when(theme) {
+                        Theme.SYSTEM -> system
+                        Theme.LIGHT -> true
+                        Theme.DARK -> false
+                    }
+                }
+            }
+
+            StriderTheme(
+                darkTheme = darkTheme
+            ) {
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,

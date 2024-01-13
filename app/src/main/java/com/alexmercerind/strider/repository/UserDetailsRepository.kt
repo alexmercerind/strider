@@ -2,7 +2,6 @@ package com.alexmercerind.strider.repository
 
 import android.app.Application
 import android.content.Context
-import com.alexmercerind.strider.R
 import com.alexmercerind.strider.enums.Gender
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -34,11 +33,11 @@ class UserDetailsRepository(application: Application) {
         get() = validate(name.value, gender.value, height.value, weight.value)
 
     private val sharedPreferences = application.getSharedPreferences(
-        application.getString(R.string.app_name),
+        "UserDetailsRepository",
         Context.MODE_PRIVATE
     )
 
-        fun save(name: String, gender: Gender?, height: Float, weight: Float): Boolean {
+    fun save(name: String, gender: Gender?, height: Float, weight: Float): Boolean {
         if (validate(name, gender, height, weight)) {
             GlobalScope.launch(Dispatchers.IO) {
                 _name.emit(name)

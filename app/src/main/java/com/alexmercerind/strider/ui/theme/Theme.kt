@@ -25,8 +25,10 @@ private val lightColorScheme = lightColorScheme(
 @Composable
 fun StriderTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true, content: @Composable () -> Unit
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
 ) {
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -36,6 +38,7 @@ fun StriderTheme(
         darkTheme -> darkColorScheme
         else -> lightColorScheme
     }
+    //    NOTE: Edge-To-Edge is enabled.
     //    val view = LocalView.current
     //    if (!view.isInEditMode) {
     //      SideEffect {
