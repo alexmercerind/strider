@@ -8,5 +8,9 @@ open class Destinations(val route: String) {
         object PermissionsScreen : Destinations("PermissionsScreen")
 
         object UserDetailsScreen : Destinations("UserDetailsScreen")
+
+        object SettingsScreen : Destinations("SettingsScreen")
+
+        object AnalyticsScreen : Destinations("AnalyticsScreen")
     }
 }

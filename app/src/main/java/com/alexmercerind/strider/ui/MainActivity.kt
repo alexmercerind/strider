@@ -75,8 +75,8 @@ class MainActivity : ComponentActivity() {
                 derivedStateOf {
                     when(theme) {
                         Theme.SYSTEM -> system
-                        Theme.LIGHT -> true
-                        Theme.DARK -> false
+                        Theme.LIGHT -> false
+                        Theme.DARK -> true
                     }
                 }
             }
@@ -115,6 +115,15 @@ class MainActivity : ComponentActivity() {
                             heightValue = heightValue,
                             weightValue = weightValue,
                             onSave = userDetailsViewModel::save
+                        )
+                    }
+                    composable(Destinations.Companion.SettingsScreen.route) {
+                        SettingsScreen(
+                            navController = navController,
+                            goal = settingsViewModel.goal,
+                            theme = settingsViewModel.theme,
+                            onGoalSave = settingsViewModel::saveGoal,
+                            onThemeSave = settingsViewModel::saveTheme
                         )
                     }
                 }

@@ -101,7 +101,7 @@ fun HomeScreen(
                             contentDescription = stringResource(id = R.string.settings)
                         )
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate(Destinations.Companion.SettingsScreen.route) }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(id = R.string.settings)

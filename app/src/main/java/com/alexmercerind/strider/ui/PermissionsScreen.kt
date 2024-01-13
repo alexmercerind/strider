@@ -116,8 +116,8 @@ fun PermissionsScreen(navController: NavController) {
                             .size(32.dp)
                     )
                 },
-                    headlineText = { Text(text = stringResource(id = R.string.permissions_physical_activity_headline)) },
-                    supportingText = { Text(text = stringResource(id = R.string.permissions_physical_activity_supporting)) })
+                    headlineContent = { Text(text = stringResource(id = R.string.permissions_physical_activity_headline)) },
+                    supportingContent = { Text(text = stringResource(id = R.string.permissions_physical_activity_supporting)) })
             }
             item {
                 Button(
@@ -146,8 +146,8 @@ fun PermissionsScreen(navController: NavController) {
                             .size(32.dp)
                     )
                 },
-                    headlineText = { Text(text = stringResource(id = R.string.permissions_notifications_headline)) },
-                    supportingText = { Text(text = stringResource(id = R.string.permissions_notifications_supporting)) })
+                    headlineContent = { Text(text = stringResource(id = R.string.permissions_notifications_headline)) },
+                    supportingContent = { Text(text = stringResource(id = R.string.permissions_notifications_supporting)) })
             }
             item {
                 Button(
