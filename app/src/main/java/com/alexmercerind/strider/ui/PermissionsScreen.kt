@@ -60,12 +60,12 @@ fun PermissionsScreen(navController: NavController) {
 
     val physicalActivityPermission by remember {
         derivedStateOf {
-            physicalActivityPermissionState?.status?.isGranted ?: false
+            physicalActivityPermissionState?.status?.isGranted ?: true
         }
     }
     val notificationsPermission by remember {
         derivedStateOf {
-            notificationsPermissionState?.status?.isGranted ?: false
+            notificationsPermissionState?.status?.isGranted ?: true
         }
     }
 

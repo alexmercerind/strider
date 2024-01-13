@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
             // --------------------------------------------------
             val hasPermission by remember {
                 derivedStateOf {
-                    physicalActivityPermissionState?.status?.isGranted ?: false && notificationsPermissionState?.status?.isGranted ?: false
+                    physicalActivityPermissionState?.status?.isGranted ?: true && notificationsPermissionState?.status?.isGranted ?: true
                 }
             }
             // --------------------------------------------------

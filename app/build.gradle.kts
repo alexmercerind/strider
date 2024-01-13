@@ -29,6 +29,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            applicationIdSuffix = ".debug"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -63,6 +66,9 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.5.8")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
 
+    implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
+
+    implementation("com.patrykandpatrick.vico:compose:1.13.1")
     implementation("io.github.boguszpawlowski.composecalendar:composecalendar:1.1.0")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
