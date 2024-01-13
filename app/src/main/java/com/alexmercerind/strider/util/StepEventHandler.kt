@@ -98,8 +98,8 @@ class StepEventHandler(
         }
     }
 
-    private fun getMaleMETFromStepRate(value: Float) = 0.00004325 * value.pow(2.4528F)
-    private fun getFemaleMETFromStepRate(value: Float) = 0.00004325 * value.pow(2.4528F)
+    private fun getMaleMETFromStepRate(value: Float) = 0.00004325F * value.pow(2.4528F)
+    private fun getFemaleMETFromStepRate(value: Float) = 0.00008048F * value.pow(2.2884F)
 
     private fun getSpeedFromStepRate(value: Float) =
         userDetailsRepository.height.value * 0.414F * value / (100L * 60L)
