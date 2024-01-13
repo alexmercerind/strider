@@ -16,7 +16,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 /**
  * StepEventHandler handles a new step event:
@@ -103,7 +102,7 @@ class StepEventHandler(
     private fun getFemaleMETFromStepRate(value: Float) = 0.00004325 * value.pow(2.4528F)
 
     private fun getSpeedFromStepRate(value: Float) =
-        userDetailsRepository.height.value * sqrt(2.0F) * value / (100L * 60L)
+        userDetailsRepository.height.value * 0.414F * value / (100L * 60L)
 
     companion object {
         const val BUFFER_INTERVAL = 5L
