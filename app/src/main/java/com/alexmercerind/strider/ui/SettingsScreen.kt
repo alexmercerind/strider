@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
@@ -170,6 +168,25 @@ fun SettingsScreen(
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = stringResource(id = R.string.settings_about),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = stringResource(id = R.string.settings_about_developer),
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
 

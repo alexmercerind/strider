@@ -1,6 +1,5 @@
 package com.alexmercerind.strider.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,15 +30,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -54,16 +50,14 @@ import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
 import com.alexmercerind.strider.model.Step
 import io.github.boguszpawlowski.composecalendar.SelectableWeekCalendar
-import io.github.boguszpawlowski.composecalendar.StaticWeekCalendar
 import io.github.boguszpawlowski.composecalendar.rememberSelectableWeekCalendarState
-import io.github.boguszpawlowski.composecalendar.rememberWeekCalendarState
 import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
-import io.github.boguszpawlowski.composecalendar.selection.SelectionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.reflect.KSuspendFunction2
@@ -189,7 +183,8 @@ fun AnalyticsScreen(
                         modifier = modifier.clip(CircleShape)
 
                         Surface(
-                            modifier = modifier
+                            modifier = modifier,
+                            color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             Box(
                                 modifier = Modifier.clickable {
@@ -199,7 +194,19 @@ fun AnalyticsScreen(
                                 },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                CircularProgressIndicator(progress = 0.5F)
+                                val from = date.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                                val to = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+
+                                val p by remember(from, to) {
+                                    watchStepCountInRange(from, to)
+                                }.observeAsState(0L)
+
+                                val q by goal.collectAsState()
+
+                                CircularProgressIndicator(
+                                    progress = (p.toDouble() / q.toDouble()).toFloat()
+                                )
+
                                 Text(text = date.dayOfMonth.toString())
                             }
                         }
