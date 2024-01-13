@@ -1,4 +1,4 @@
-package com.alexmercerind.strider.enum
+package com.alexmercerind.strider.enums
 
 enum class Gender {
     FEMALE,
