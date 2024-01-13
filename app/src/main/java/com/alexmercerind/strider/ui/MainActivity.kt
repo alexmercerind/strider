@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alexmercerind.strider.services.StepReaderService
+import com.alexmercerind.strider.service.StepReaderService
 import com.alexmercerind.strider.ui.navigation.Destinations
 import com.alexmercerind.strider.ui.theme.StriderTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -31,13 +31,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intent = Intent(this, StepReaderService::class.java).apply {
-            action = StepReaderService.ACTION_START
-        }
-        ContextCompat.startForegroundService(this, intent)
-
-
         enableEdgeToEdge()
+
         setContent {
             val navController = rememberNavController()
 

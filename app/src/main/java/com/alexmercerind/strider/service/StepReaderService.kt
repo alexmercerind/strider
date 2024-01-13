@@ -1,4 +1,4 @@
-package com.alexmercerind.strider.services
+package com.alexmercerind.strider.service
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -17,7 +17,9 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.repository.UserDetailsRepository
 import com.alexmercerind.strider.ui.MainActivity
+import com.alexmercerind.strider.util.StepEventHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,10 +38,12 @@ class StepReaderService : LifecycleService() {
     private lateinit var sensorManager: SensorManager
     private lateinit var notificationManager: NotificationManager
 
+    private lateinit var stepEventHandler: StepEventHandler
+
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
             if (event?.values?.firstOrNull() == 1.0F) {
-                // TODO: Missing implementation.
+                stepEventHandler.event()
             }
         }
 
@@ -98,6 +102,8 @@ class StepReaderService : LifecycleService() {
         sensorManager = getSystemService(SensorManager::class.java)
         notificationManager = getSystemService(NotificationManager::class.java)
 
+        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope)
+
         // Register listeners.
         try {
             val stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
@@ -137,6 +143,8 @@ class StepReaderService : LifecycleService() {
         sensorManager = getSystemService(SensorManager::class.java)
         notificationManager = getSystemService(NotificationManager::class.java)
 
+        stepEventHandler = StepEventHandler(UserDetailsRepository(application).gender.value!!, lifecycleScope)
+
         // Check for Manifest.permission.POST_NOTIFICATIONS.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             // Create notification channel.
@@ -158,4 +166,3 @@ class StepReaderService : LifecycleService() {
         return START_STICKY
     }
 }
-

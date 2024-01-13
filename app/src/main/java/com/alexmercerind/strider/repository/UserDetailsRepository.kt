@@ -3,6 +3,7 @@ package com.alexmercerind.strider.repository
 import android.app.Application
 import android.content.Context
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.enum.Gender
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -17,9 +18,9 @@ class UserDetailsRepository(application: Application) {
         get() = _name
     private val _name = MutableStateFlow("")
 
-    val gender: StateFlow<String>
+    val gender: StateFlow<Gender?>
         get() = _gender
-    private val _gender = MutableStateFlow("")
+    private val _gender = MutableStateFlow<Gender?>(null)
 
     val height: StateFlow<Float>
         get() = _height
@@ -37,7 +38,7 @@ class UserDetailsRepository(application: Application) {
         Context.MODE_PRIVATE
     )
 
-    fun save(name: String, gender: String, height: Float, weight: Float): Boolean {
+        fun save(name: String, gender: Gender?, height: Float, weight: Float): Boolean {
         if (validate(name, gender, height, weight)) {
             GlobalScope.launch(Dispatchers.IO) {
                 _name.emit(name)
@@ -46,7 +47,7 @@ class UserDetailsRepository(application: Application) {
                 _weight.emit(weight)
                 with(sharedPreferences.edit()) {
                     putString(SHARED_PREFERENCES_KEY_NAME, name)
-                    putString(SHARED_PREFERENCES_KEY_GENDER, gender)
+                    putInt(SHARED_PREFERENCES_KEY_GENDER, gender!!.ordinal)
                     putFloat(SHARED_PREFERENCES_KEY_HEIGHT, height)
                     putFloat(SHARED_PREFERENCES_KEY_WEIGHT, weight)
                     apply()
@@ -59,7 +60,7 @@ class UserDetailsRepository(application: Application) {
 
     init {
         _name.update { sharedPreferences.getString(SHARED_PREFERENCES_KEY_NAME, "") ?: "" }
-        _gender.update { sharedPreferences.getString(SHARED_PREFERENCES_KEY_GENDER, "") ?: "" }
+        _gender.update { Gender.values().getOrNull(sharedPreferences.getInt(SHARED_PREFERENCES_KEY_GENDER, -1)) }
         _height.update { sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_HEIGHT, 0.0F) }
         _weight.update { sharedPreferences.getFloat(SHARED_PREFERENCES_KEY_WEIGHT, 0.0F) }
     }
@@ -70,8 +71,8 @@ class UserDetailsRepository(application: Application) {
         const val SHARED_PREFERENCES_KEY_HEIGHT = "UserDetailsRepository/HEIGHT"
         const val SHARED_PREFERENCES_KEY_WEIGHT = "UserDetailsRepository/WEIGHT"
 
-        fun validate(name: String, gender: String, height: Float, weight: Float) =
-            name.isNotBlank() && gender.isNotBlank() && height > 0.0F && weight > 0.0F
+        fun validate(name: String, gender: Gender?, height: Float, weight: Float) =
+            name.isNotBlank() && gender != null && height > 0.0F && weight > 0.0F
 
         @Volatile
         private var instance: UserDetailsRepository? = null

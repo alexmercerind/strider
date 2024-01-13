@@ -2,6 +2,7 @@ package com.alexmercerind.strider.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.alexmercerind.strider.enum.Gender
 import com.alexmercerind.strider.repository.UserDetailsRepository
 
 class UserDetailsViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,6 +18,6 @@ class UserDetailsViewModel(application: Application) : AndroidViewModel(applicat
 
     val hasUserDetails get() = repository.hasUserDetails
 
-    fun save(name: String, gender: String, height: Float, weight: Float): Boolean =
+    fun save(name: String, gender: Gender?, height: Float, weight: Float): Boolean =
         repository.save(name, gender, height, weight)
 }

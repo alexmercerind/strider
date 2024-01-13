@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.enum.Gender
 import com.alexmercerind.strider.ui.navigation.Destinations
 import kotlinx.coroutines.launch
 
@@ -54,13 +55,13 @@ import kotlinx.coroutines.launch
 fun UserDetailsScreen(
     navController: NavController,
     nameValue: String = "",
-    genderValue: String = "",
+    genderValue: Gender? = null,
     heightValue: Float = 0.0F,
     weightValue: Float = 0.0F,
-    onSave: (String, String, Float, Float) -> Boolean
+    onSave: (String, Gender?, Float, Float) -> Boolean
 ) {
     var name by remember { mutableStateOf(nameValue.ifBlank { "" }) }
-    var gender by remember { mutableStateOf(genderValue.ifBlank { "" }) }
+    var gender by remember { mutableStateOf(genderValue) }
     var height by remember { mutableStateOf(if (heightValue > 0.0F) heightValue.toString() else "") }
     var weight by remember { mutableStateOf(if (weightValue > 0.0F) weightValue.toString() else "") }
 
@@ -103,6 +104,11 @@ fun UserDetailsScreen(
                 singleLine = true,
                 label = { Text(text = stringResource(id = R.string.user_name)) })
             Spacer(modifier = Modifier.height(16.dp))
+
+            val male = stringResource(id = R.string.unit_gender_male)
+            val female = stringResource(id = R.string.unit_gender_female)
+            val unspecified = stringResource(id = R.string.unit_gender_unspecified)
+
             ExposedDropdownMenuBox(modifier = Modifier.fillMaxWidth(),
                 expanded = false,
                 onExpandedChange = { expanded = it }) {
@@ -110,7 +116,12 @@ fun UserDetailsScreen(
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth(),
-                    value = gender,
+                    value = when (gender) {
+                        Gender.MALE -> male
+                        Gender.FEMALE -> female
+                        Gender.UNSPECIFIED -> unspecified
+                        else -> ""
+                    },
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(text = stringResource(id = R.string.quantity_gender)) },
@@ -122,18 +133,18 @@ fun UserDetailsScreen(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                 ) {
-                    val male = stringResource(id = R.string.unit_gender_male)
-                    val female = stringResource(id = R.string.unit_gender_female)
-                    val unspecified = stringResource(id = R.string.unit_gender_unspecified)
                     DropdownMenuItem(contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         text = { Text(text = male) },
-                        onClick = { gender = male; expanded = false })
+                        onClick = { gender = Gender.MALE; expanded = false }
+                    )
                     DropdownMenuItem(contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         text = { Text(text = female) },
-                        onClick = { gender = female; expanded = false })
+                        onClick = { gender = Gender.FEMALE; expanded = false }
+                    )
                     DropdownMenuItem(contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         text = { Text(text = unspecified) },
-                        onClick = { gender = unspecified; expanded = false })
+                        onClick = { gender = Gender.UNSPECIFIED; expanded = false }
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -234,7 +245,7 @@ fun UserDetailsScreenPreview() {
     UserDetailsScreen(
         navController = rememberNavController(),
         nameValue = "Alex",
-        genderValue = "Mercer",
+        genderValue = Gender.MALE,
         heightValue = 168.0F,
         weightValue = 54.0F
     ) { _, _, _, _ ->

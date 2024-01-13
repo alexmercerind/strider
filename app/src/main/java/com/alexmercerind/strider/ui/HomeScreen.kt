@@ -1,5 +1,6 @@
 package com.alexmercerind.strider.ui
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -18,46 +19,65 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alexmercerind.strider.R
+import com.alexmercerind.strider.service.StepReaderService
 import com.alexmercerind.strider.ui.navigation.Destinations
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    val state = rememberTopAppBarState()
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
-    Scaffold(topBar = {
-        LargeTopAppBar(title = {
-            Text(text = stringResource(id = R.string.details_today))
-        }, scrollBehavior = scrollBehavior, actions = {
-            IconButton(onClick = {
-                navController.navigate(Destinations.Companion.UserDetailsScreen.route)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = stringResource(id = R.string.settings)
-                )
-            }
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(id = R.string.settings)
-                )
-            }
-        })
-    }, floatingActionButton = {
-        FloatingActionButton(onClick = { /*TODO*/ }) {
 
+    val context = LocalContext.current
+    LaunchedEffect(rememberCoroutineScope()) {
+        withContext(Dispatchers.IO) {
+            val intent = Intent(context, StepReaderService::class.java).apply {
+                action = StepReaderService.ACTION_START
+            }
+            context.startService(intent)
         }
-    }) { padding ->
+    }
+
+    val state = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = state, snapAnimationSpec = null)
+    Scaffold(
+        topBar = {
+            LargeTopAppBar(
+                title = { Text(text = stringResource(id = R.string.details_today)) },
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    IconButton(onClick = { navController.navigate(Destinations.Companion.UserDetailsScreen.route) }) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = stringResource(id = R.string.settings)
+                        )
+                    }
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(id = R.string.settings)
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { /*TODO*/ }) {
+
+            }
+        }
+    ) { padding ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
