@@ -1,4 +1,4 @@
-package com.alexmercerind.strider.utils
+package com.alexmercerind.strider.util
 
 class Constants {
     companion object {
