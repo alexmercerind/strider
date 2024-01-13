@@ -40,7 +40,7 @@ fun DayStepCounter(current: Long, target: Long) {
     val progress by animateFloatAsState(
         label = "DayStepCounter",
         targetValue = current.toFloat() / target.toFloat(),
-        animationSpec = tween(400, 200, EaseInOut)
+        animationSpec = tween(1000, 200, EaseInOut)
     )
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
@@ -109,6 +109,7 @@ fun DayStepCounter(current: Long, target: Long) {
 @Preview
 fun DayStepCounterPreview() {
     DayStepCounter(
-        current = 420, target = 1000
+        current = 420,
+        target = 1000
     )
 }

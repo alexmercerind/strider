@@ -89,15 +89,6 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = startDestination,
                 ) {
-                    composable(Destinations.Companion.HomeScreen.route) {
-                        HomeScreen(
-                            navController = navController,
-                            getStepsInRange = stepViewModel::getStepsInRange,
-                            watchStepsInRange = stepViewModel::watchStepsInRange,
-                            getStepCountInRange = stepViewModel::getStepCountInRange,
-                            watchStepCountInRange = stepViewModel::watchStepCountInRange
-                        )
-                    }
                     composable(Destinations.Companion.PermissionsScreen.route) {
                         PermissionsScreen(
                             navController = navController
@@ -115,6 +106,26 @@ class MainActivity : ComponentActivity() {
                             heightValue = heightValue,
                             weightValue = weightValue,
                             onSave = userDetailsViewModel::save
+                        )
+                    }
+                    composable(Destinations.Companion.HomeScreen.route) {
+                        HomeScreen(
+                            navController = navController,
+                            goal = settingsViewModel.goal,
+                            getStepsInRange = stepViewModel::getStepsInRange,
+                            watchStepsInRange = stepViewModel::watchStepsInRange,
+                            getStepCountInRange = stepViewModel::getStepCountInRange,
+                            watchStepCountInRange = stepViewModel::watchStepCountInRange
+                        )
+                    }
+                    composable(Destinations.Companion.AnalyticsScreen.route) {
+                        AnalyticsScreen(
+                            navController = navController,
+                            goal = settingsViewModel.goal,
+                            getStepsInRange = stepViewModel::getStepsInRange,
+                            watchStepsInRange = stepViewModel::watchStepsInRange,
+                            getStepCountInRange = stepViewModel::getStepCountInRange,
+                            watchStepCountInRange = stepViewModel::watchStepCountInRange
                         )
                     }
                     composable(Destinations.Companion.SettingsScreen.route) {

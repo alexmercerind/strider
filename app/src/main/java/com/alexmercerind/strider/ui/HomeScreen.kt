@@ -25,6 +25,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -53,8 +54,9 @@ import com.alexmercerind.strider.extensions.toDistanceString
 import com.alexmercerind.strider.model.Step
 import com.alexmercerind.strider.service.StepReaderService
 import com.alexmercerind.strider.ui.navigation.Destinations
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
@@ -65,6 +67,7 @@ import kotlin.reflect.KSuspendFunction2
 @Composable
 fun HomeScreen(
     navController: NavController,
+    goal: StateFlow<Long>,
     getStepsInRange: KSuspendFunction2<Instant, Instant, List<Step>>,
     watchStepsInRange: (Instant, Instant) -> LiveData<List<Step>>,
     getStepCountInRange: KSuspendFunction2<Instant, Instant, Long>,
@@ -111,7 +114,7 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(onClick = { navController.navigate(Destinations.Companion.AnalyticsScreen.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_calendar_month_24),
                     contentDescription = stringResource(id = R.string.analytics)
@@ -132,7 +135,12 @@ fun HomeScreen(
                 val current by remember {
                     watchStepCountInRange(from, to)
                 }.observeAsState(0L)
-                DayStepCounter(current = current, target = 10000L)
+                val target by goal.collectAsState()
+
+                DayStepCounter(
+                    current = current,
+                    target = target
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -236,9 +244,10 @@ fun HomeScreenPreview() {
 
     HomeScreen(
         navController = rememberNavController(),
-        ::fun1,
-        { _, _ -> MutableLiveData() },
-        ::fun2,
-        { _, _ -> MutableLiveData() }
+        goal = MutableStateFlow(10000L),
+        getStepsInRange = ::fun1,
+        watchStepsInRange = { _, _ -> MutableLiveData() },
+        getStepCountInRange = ::fun2,
+        watchStepCountInRange = { _, _ -> MutableLiveData() }
     )
 }
