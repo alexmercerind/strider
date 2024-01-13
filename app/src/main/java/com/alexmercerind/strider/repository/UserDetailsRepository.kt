@@ -3,7 +3,7 @@ package com.alexmercerind.strider.repository
 import android.app.Application
 import android.content.Context
 import com.alexmercerind.strider.R
-import com.alexmercerind.strider.enum.Gender
+import com.alexmercerind.strider.enums.Gender
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
